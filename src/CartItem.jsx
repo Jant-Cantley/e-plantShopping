@@ -8,25 +8,16 @@ const CartItem = ({ onContinueShopping }) => {
     const dispatch = useDispatch();
 
 
-    const parseItemCostToInteger = (itemCost) => {
-        /*
-            Remove currency symbol before multiplication.
-            Otherwise, NaN returned.
-            Improve in future: Use regex to remove all possible currency symbols?
-        */
-        return parseInt(itemCost.replace('$', ''), 10);
-    };
-
-    // Calculate total amount for all products in the cart
+       // Calculate total amount for all products in the cart
     const calculateTotalAmount = () => {
-        let totalCost = 0;
+    let total = 0;
 
-        cart.forEach((item) => {
-            const itemCost = parseItemCostToInteger(item.cost);
-            totalCost += itemCost * item.quantity;
-        });
+    cart.forEach(item => {
+        const cost = parseFloat(item.cost.substring(1));
+        total += item.quantity * cost;
+    })
 
-        return totalCost;
+    return total; 
     };
 
     const handleContinueShopping = (e) => {
@@ -37,36 +28,26 @@ const CartItem = ({ onContinueShopping }) => {
         alert('Functionality to be added for future reference');
     };
 
-    const handleIncrement = (item) => {
-        const updatedItem = { ...item };
-        updatedItem.quantity++;
-        dispatch(updateQuantity(updatedItem));
-    };
+   const handleIncrement = (item) => {
+  dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
+};
 
     const handleDecrement = (item) => {
-        const updatedItem = { ...item };
-
-        if (updatedItem.quantity == 1) {
-            // Remove item if number of items gets decremented to 0
-            dispatch(removeItem(updatedItem));
-        } else {
-            updatedItem.quantity--;
-            dispatch(updateQuantity(updatedItem));
-        }
-    };
+  if (item.quantity > 1) {
+    dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+  } else {
+    dispatch(removeItem(item.name));
+  }
+};
 
     const handleRemove = (item) => {
         dispatch(removeItem(item));
     };
 
     // Calculate total cost based on quantity for an item
-    const calculateTotalCost = (item) => {
-        let totalCost = 0;
-        const itemCost = parseItemCostToInteger(item.cost);
-        totalCost = item.quantity * itemCost;
-
-        return totalCost;
-    };
+   const calculateTotalCost = (item) => {
+  return item.quantity * parseFloat(item.cost.substring(1)); // removes "$" sign and calculates total
+};
 
     return (
         <div className="cart-container">
